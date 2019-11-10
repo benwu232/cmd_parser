@@ -1,15 +1,12 @@
-import ast
 import sys
-#test_string = '{"Nikhil" : 1, "Akshat" : 2, "Akash" : 3}'
 
-
-in_str = "dict1=-ds ar=-ls 10 11 12 dict2=-ds x=1 y=2 seq=-ls 7 8 -le -de 13 -le a=1 c=2 dict2=-ds f=3 h=i -de j=k -de"
-# dict1=-ds1 a=1 c=2 dict2=-ds2 f=3 h=i -de2 j=k -de2
 # dict1=-ds ar=-ls 10 11 12 dict2=-ds x=1 y=2 seq=-ls 7 8 seq2=-ls 9 -le -le -de 13 -le a=1 c=2 dict3=-ds f=3 h=i -de j=k -de
-# dict1={ ar=[ 10 11 12 dict2={ x=1 y=2 seq=[ 7 8 seq2=[ 9 ] ] } 13 ] a=1 c=2 dict3={ f=3 h=i } j=k }
-# dict1:{ ar:[ 10 11 12 dict2:{ x:1 y:2 seq:[ 7 8 seq2:[ 9 ] ] } 13 ] a:1 c:2 dict3:{ f:3 h:i } j:k }
-# dict1:{ ar:[ 10 11 12 { x:1 y:2 seq:[ 7 8 [ 9 ] ] } 13 ] a:1 c:2 dict3:{ f:3 h:i } j:k }
+
+#example
 # n: 100 dict1: { m: 3 ar: [ 10 11 12 { x: 1 y: 2 seq: [ 7 8 [ 9 ] ] } 13 ] a: 1 c: 2 dict3: { f: 3 h: i } j: k }
+# The gramma is similar to python
+# { } contains directory
+# [ ] contains list
 
 def parse_dict(str_in):
     dic = {}
@@ -29,110 +26,19 @@ def parse_dict(str_in):
             cur_dict = layer[-1]
     return dic
 
-def parse_cmd1(str_in):
-    cmd_dict = {}
-    layers = [cmd_dict]
 
-    for s in str_in:
-        items = s.split('=')
-
-        if type(layers[-1]) == list:
-            if len(items) == 2:
-                if '-ds' in items[1]:  # start of dict
-                    d = {}
-                    layers[-1].append(d)
-                    layers.append(d)
-                elif '-ls' in items[1]:  # start of list
-                    l = []
-                    layers[-1].append(l)
-                    layers.append(l)
-            else:
-                assert len(items) == 1
-                if '-le' in items[0]:
-                    layers.pop()
-                else:
-                    layers[-1].append(items[0])
-
-        elif type(layers[-1]) == dict:
-            if len(items) == 2:
-                if '-ds' in items[1]:  # start of dict
-                    layers[-1][items[0]] = {}
-                    layers.append(layers[-1][items[0]])
-                elif '-ls' in items[1]:  # start of list
-                    layers[-1][items[0]] = []
-                    layers.append(layers[-1][items[0]])
-                else:
-                    layers[-1][items[0]] = items[1]
-            else:
-                assert len(items) == 1
-                if '-de' in items[0]:
-                    layers.pop()
-
-    return cmd_dict
-
-def parse_cmd2(str_in):
-    cmd_dict = {}
-    layers = [cmd_dict]
-
-    for s in str_in:
-        items = s.split(':')
-
-        if type(layers[-1]) == list:
-            if len(items) == 2:
-                if '{' in items[1]:  # start of dict
-                    d = {}
-                    layers[-1].append(d)
-                    layers.append(d)
-                elif '[' in items[1]:  # start of list
-                    l = []
-                    layers[-1].append(l)
-                    layers.append(l)
-            else:
-                assert len(items) == 1
-                if '{' in items[0]:  # start of dict
-                    d = {}
-                    layers[-1].append(d)
-                    layers.append(d)
-                elif '[' in items[0]:  # start of list
-                    l = []
-                    layers[-1].append(l)
-                    layers.append(l)
-                elif ']' in items[0] or '}' in items[0]:
-                    layers.pop()
-                else:
-                    layers[-1].append(items[0])
-
-        elif type(layers[-1]) == dict:
-            if len(items) == 2:
-                if '{' in items[1]:  # start of dict
-                    layers[-1][items[0]] = {}
-                    layers.append(layers[-1][items[0]])
-                elif '[' in items[1]:  # start of list
-                    layers[-1][items[0]] = []
-                    layers.append(layers[-1][items[0]])
-                else:
-                    layers[-1][items[0]] = items[1]
-            else:
-                assert len(items) == 1
-                if '}' in items[0]:
-                    layers.pop()
-
-    return cmd_dict
-
-
-
-def parse_cmd(str_in):
+def parse_cmd(cmd_list):
     cmd_dict = {}
     layers = [cmd_dict]
     cur_key = None
 
-    def pro(d):
+    def pro(section):
         if type(layers[-1]) == list:
-            layers[-1].append(d)
+            layers[-1].append(section)
         elif type(layers[-1]) == dict:
-            layers[-1][cur_key] = d
+            layers[-1][cur_key] = section
 
-    for s in str_in:
+    for s in cmd_list:
         item = s
         if ':' in s:
             cur_key = s.split(':')[0]
