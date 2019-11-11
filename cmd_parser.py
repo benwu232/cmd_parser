@@ -23,7 +23,9 @@ def parse_dict(str_in):
     return dic
 
 
-def parse_cmd(cmd_list):
+def parse_cmd(cmd_list, blank_space_pattern='\\_',
+              dict_flag=':', dict_start='{', dict_end='}',
+              list_start = '[', list_end = ']'):
     '''
     Parse command line to python directory
     The gramma is similar to python
@@ -53,22 +55,22 @@ def parse_cmd(cmd_list):
             cmd_stacks[-1][cur_key] = seg
 
     for s in cmd_list:
-        s = s.replace('\\_', ' ')      #process of blank spaces in parameters
+        s = s.replace(blank_space_pattern, ' ')      #process of blank spaces in parameters
         item = s
-        if ':' in s:
-            cur_key = s.split(':')[0]
+        if dict_flag in s:
+            cur_key = s.split(dict_flag)[0]
 
-        elif item == '{':
+        elif item == dict_start:
             seg = {}
             pro(seg)
             cmd_stacks.append(seg)
 
-        elif item == '[':
+        elif item == list_start:
             seg = []
             pro(seg)
             cmd_stacks.append(seg)
 
-        elif ']' in item or '}' in item:
+        elif list_end in item or dict_end in item:
             cmd_stacks.pop()
 
         else:
@@ -76,14 +78,17 @@ def parse_cmd(cmd_list):
 
     return cmd_dict
 
-
-if __name__ in '__main__':
-    args = sys.argv[1:]
+def print_parse_cmd(args):
     print('input', args)
     out_dict = parse_cmd(args)
     print('out_dict', out_dict)
     pp = pprint.PrettyPrinter(indent=2)
     pp.pprint(out_dict)
     print('bingo')
+
+
+if __name__ in '__main__':
+    args = sys.argv[1:]
+    print_parse_cmd(args)
 
 
