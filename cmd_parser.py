@@ -41,7 +41,13 @@ def parse_cmd(cmd_list, blank_space_pattern='\\_',
     spark: { } kafka: { brokers: local.1:10001,local.2:10002,local.3:10003 err_topic: err_log period: 2 } err_db: { host: 127.0.0.1 port: 3306 username: abc password: 123456 db_name: gh charset: utf8mb4 } err_table: { table_name: err_log  schema: { error_type: VCHAR(50) err_gen_at: BIGINT\_NOT\_NULL app_name: VCHAR(50)  } }
     out_dict {'spark': {}, 'kafka': {'err_topic': 'err_log', 'period': '2'}, 'err_db': {'host': '127.0.0.1', 'port': '3306', 'username': 'abc', 'password': '123456', 'db_name': 'gh', 'charset': 'utf8mb4'}, 'err_table': {'table_name': 'err_log', 'schema': {'error_type': 'VCHAR(50)', 'err_gen_at': 'BIGINT NOT NULL', 'app_name': 'VCHAR(50)'}}}
 
-    :param cmd_list:
+    :param cmd_list: list of commands, generally sys.argv[1:]
+           blank_space_pattern: pattern of blank spaces in comments
+           dict_flag: flag of dict, the part of string before it is parsed as the name of the dict
+           dict_start: default value '{'
+           dict_end: default value '}'
+           list_start: default value '['
+           list_end: default value ']'
     :return: python directory which contains command list
     '''
     cmd_dict = {}
