@@ -53,7 +53,7 @@ def parse_cmd(cmd_list):
             cmd_stacks[-1][cur_key] = seg
 
     for s in cmd_list:
-        s = s.replace('\\_', ' ')
+        s = s.replace('\\_', ' ')      #process of blank spaces in parameters
         item = s
         if ':' in s:
             cur_key = s.split(':')[0]
