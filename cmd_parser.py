@@ -1,7 +1,33 @@
 import sys
 import pprint
+import re
 
-# dict1=-ds ar=-ls 10 11 12 dict2=-ds x=1 y=2 seq=-ls 7 8 seq2=-ls 9 -le -le -de 13 -le a=1 c=2 dict3=-ds f=3 h=i -de j=k -de
+
+def filter_int(str_in):
+    int_container = re.findall(r'int\(.+\)', str_in)
+    if int_container == []:
+        return str_in, False
+
+    int_str = re.findall(r'[-+]?[0-9]+', int_container[0])
+    return int(int_str[0]), True
+
+def filter_float(str_in):
+    int_container = re.findall(r'float\(.+\)', str_in)
+    if int_container == []:
+        return str_in, False
+
+    #float_str = re.findall(r'[-+]? (?: (?: \d* \. \d+ ) | (?: \d+ \.? ) )(?: [Ee] [+-]? \d+ ) ?', int_container[0])
+    float_str = re.findall(r'[-+]?\d*\.\d*', int_container[0])
+    return float(float_str[0]), True
+
+def filter_num(par_in):
+    if type(par_in) != str:
+        return par_in
+    res1, flag = filter_int(par_in)
+    if flag:
+        return res1
+    res2, flag = filter_float(res1)
+    return res2
 
 
 def parse_dict(str_in):
@@ -33,6 +59,8 @@ def parse_cmd(cmd_list, blank_space_pattern='\\_',
     [ ] contains list
     \_  means blank space. Because blank spaces are used to split command line, use '\_' to replace a blank space in
     the parameters. it will be replaced by a blank space in the final output.
+    if the parameter you want to pass is int type, type like this int(num), e.g. int(-3)
+    if the parameter you want to pass is float type, type like this float(num), e.g. float(-3.14)
 
     example
     n: 100 dict1: { m: 3 ar: [ 10 11 12 { x: 1 y: 2 seq: [ 7 8 [ 9 ] ] } 13 ] a: 1 c: 2 dict3: { f: 3 h: i } j: k }
@@ -55,6 +83,8 @@ def parse_cmd(cmd_list, blank_space_pattern='\\_',
     cur_key = None
 
     def pro(seg):
+        #print(seg)
+        seg = filter_num(seg)
         if type(cmd_stacks[-1]) == list:
             cmd_stacks[-1].append(seg)
         elif type(cmd_stacks[-1]) == dict:
@@ -63,8 +93,9 @@ def parse_cmd(cmd_list, blank_space_pattern='\\_',
     for s in cmd_list:
         s = s.replace(blank_space_pattern, ' ')      #process of blank spaces in parameters
         item = s
-        if dict_flag in s:
-            cur_key = s.split(dict_flag)[0]
+        if dict_flag == s[-1]:
+            #cur_key = s.split(dict_flag)[0]
+            cur_key = s[:-1]
 
         elif item == dict_start:
             seg = {}
