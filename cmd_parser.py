@@ -1,4 +1,5 @@
 import sys
+import pprint
 
 # dict1=-ds ar=-ls 10 11 12 dict2=-ds x=1 y=2 seq=-ls 7 8 seq2=-ls 9 -le -le -de 13 -le a=1 c=2 dict3=-ds f=3 h=i -de j=k -de
 
@@ -28,10 +29,15 @@ def parse_cmd(cmd_list):
     The gramma is similar to python
     { } contains directory
     [ ] contains list
+    \_  means blank space. Because blank spaces are used to split command line, use '\_' to replace a blank space in
+    the parameters. it will be replaced by a blank space in the final output.
 
     example
     n: 100 dict1: { m: 3 ar: [ 10 11 12 { x: 1 y: 2 seq: [ 7 8 [ 9 ] ] } 13 ] a: 1 c: 2 dict3: { f: 3 h: i } j: k }
     out_dict {'n': '100', 'dict1': {'m': '3', 'ar': ['10', '11', '12', {'x': '1', 'y': '2', 'seq': ['7', '8', ['9']]}, '13'], 'a': '1', 'c': '2', 'dict3': {'f': '3', 'h': 'i'}, 'j': 'k'}}
+
+    spark: { } kafka: { brokers: local.1:10001,local.2:10002,local.3:10003 err_topic: err_log period: 2 } err_db: { host: 127.0.0.1 port: 3306 username: abc password: 123456 db_name: gh charset: utf8mb4 } err_table: { table_name: err_log  schema: { error_type: VCHAR(50) err_gen_at: BIGINT\_NOT\_NULL app_name: VCHAR(50)  } }
+    out_dict {'spark': {}, 'kafka': {'err_topic': 'err_log', 'period': '2'}, 'err_db': {'host': '127.0.0.1', 'port': '3306', 'username': 'abc', 'password': '123456', 'db_name': 'gh', 'charset': 'utf8mb4'}, 'err_table': {'table_name': 'err_log', 'schema': {'error_type': 'VCHAR(50)', 'err_gen_at': 'BIGINT NOT NULL', 'app_name': 'VCHAR(50)'}}}
 
     :param cmd_list:
     :return: python directory which contains command list
@@ -47,6 +53,7 @@ def parse_cmd(cmd_list):
             cmd_stacks[-1][cur_key] = seg
 
     for s in cmd_list:
+        s = s.replace('\\_', ' ')
         item = s
         if ':' in s:
             cur_key = s.split(':')[0]
@@ -75,6 +82,8 @@ if __name__ in '__main__':
     print('input', args)
     out_dict = parse_cmd(args)
     print('out_dict', out_dict)
+    pp = pprint.PrettyPrinter(indent=2)
+    pp.pprint(out_dict)
     print('bingo')
 
 
